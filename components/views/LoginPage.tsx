@@ -34,7 +34,7 @@ export default function LoginPage({ onSuccess, onGoSignup }: Props) {
     });
     setLoading(false);
     if (res?.error) {
-      setError('Invalid email or password');
+      setError(t('invalidCredentials'));
       return;
     }
     onSuccess();
@@ -42,12 +42,12 @@ export default function LoginPage({ onSuccess, onGoSignup }: Props) {
 
   return (
     <div className={ds.page}>
-      <WebHeader title="Sign in" subtitle={t('tagline')} showBrand />
+      <WebHeader title={t('loginTitle')} subtitle={t('loginSub')} showBrand />
       <PageContainer narrow className="py-10">
         <Card padding className="max-w-md mx-auto">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className={labelClassName}>Email</label>
+              <label className={labelClassName}>{t('email')}</label>
               <input
                 type="email"
                 required
@@ -58,7 +58,7 @@ export default function LoginPage({ onSuccess, onGoSignup }: Props) {
               />
             </div>
             <div>
-              <label className={labelClassName}>Password</label>
+              <label className={labelClassName}>{t('password')}</label>
               <input
                 type="password"
                 required
@@ -73,17 +73,17 @@ export default function LoginPage({ onSuccess, onGoSignup }: Props) {
             )}
             <Button type="submit" fullWidth disabled={loading}>
               {loading && <Loader2 size={16} className="animate-spin" />}
-              Sign in
+              {t('loginTitle')}
             </Button>
           </form>
           <p className="text-sm text-slate-500 text-center mt-4">
-            No account?{' '}
+            {t('noAccount')}{' '}
             <button
               type="button"
               onClick={onGoSignup}
               className="text-teal-700 font-medium hover:underline"
             >
-              Create one
+              {t('signUpLink')}
             </button>
           </p>
         </Card>

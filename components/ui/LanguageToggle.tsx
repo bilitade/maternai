@@ -1,7 +1,6 @@
 'use client';
 
 import { useLocale } from '@/components/providers/LocaleProvider';
-import { ds } from '@/lib/design-system';
 import { cn } from '@/lib/cn';
 
 export default function LanguageToggle() {

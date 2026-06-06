@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 import PageContainer from './PageContainer';
 import LanguageToggle from '@/components/ui/LanguageToggle';
@@ -11,6 +12,7 @@ interface Props {
   title: string;
   subtitle?: string;
   onBack?: () => void;
+  backHref?: string;
   backLabel?: string;
   actions?: React.ReactNode;
   showBrand?: boolean;
@@ -39,34 +41,38 @@ export default function WebHeader({
   title,
   subtitle,
   onBack,
+  backHref,
   backLabel,
   actions,
   showBrand = false,
 }: Props) {
   const { t } = useLocale();
+  const showBack = Boolean(backHref || onBack);
 
   return (
     <header className={ds.header}>
       <PageContainer className="py-4 lg:py-5">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-3 min-w-0 flex-1">
-            {onBack && (
-              <button
-                onClick={onBack}
-                className={ds.headerBack}
-                type="button"
-              >
+            {showBack && backHref && (
+              <Link href={backHref} className={ds.headerBack} prefetch>
+                <ChevronLeft size={20} />
+                <span className="hidden sm:inline">{backLabel ?? t('back')}</span>
+              </Link>
+            )}
+            {showBack && !backHref && onBack && (
+              <button onClick={onBack} className={ds.headerBack} type="button">
                 <ChevronLeft size={20} />
                 <span className="hidden sm:inline">{backLabel ?? t('back')}</span>
               </button>
             )}
-            {showBrand && !onBack && (
+            {showBrand && !showBack && (
               <div className="hidden md:flex items-center gap-2.5 pr-4 border-r border-slate-200 mr-1 shrink-0">
                 <BrandMark />
                 <span className={ds.headerBrand}>{t('appName')}</span>
               </div>
             )}
-            {!showBrand && !onBack && <BrandMark className="hidden sm:block shrink-0" />}
+            {!showBrand && !showBack && <BrandMark className="hidden sm:block shrink-0" />}
             <div className="min-w-0">
               <h1 className="text-xl lg:text-2xl font-semibold tracking-tight text-slate-900 truncate">
                 {title}

@@ -4,8 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
-  useState,
+  useSyncExternalStore,
 } from 'react';
 import {
   type Locale,
@@ -24,25 +23,42 @@ interface LocaleContextValue {
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
-export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>('en');
+const localeListeners = new Set<() => void>();
 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(LOCALE_STORAGE_KEY);
-      if (saved === 'en' || saved === 'am') setLocaleState(saved);
-    } catch {
-      /* ignore */
-    }
-  }, []);
+function readLocale(): Locale {
+  if (typeof window === 'undefined') return 'en';
+  try {
+    const saved = localStorage.getItem(LOCALE_STORAGE_KEY);
+    if (saved === 'en' || saved === 'am') return saved;
+  } catch {
+    /* ignore */
+  }
+  return 'en';
+}
+
+function subscribeLocale(onChange: () => void) {
+  localeListeners.add(onChange);
+  return () => localeListeners.delete(onChange);
+}
+
+function notifyLocaleListeners() {
+  localeListeners.forEach((listener) => listener());
+}
+
+export function LocaleProvider({ children }: { children: React.ReactNode }) {
+  const locale = useSyncExternalStore(
+    subscribeLocale,
+    readLocale,
+    () => 'en' as Locale
+  );
 
   const setLocale = useCallback((next: Locale) => {
-    setLocaleState(next);
     try {
       localStorage.setItem(LOCALE_STORAGE_KEY, next);
     } catch {
       /* ignore */
     }
+    notifyLocaleListeners();
   }, []);
 
   const t = useCallback(

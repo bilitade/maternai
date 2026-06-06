@@ -1,6 +1,7 @@
 'use client';
 
-import type { AppView, DemoMother, MotherFlag, RiskLevel } from '@/lib/types';
+import type { DemoMother, MotherFlag, RiskLevel } from '@/lib/types';
+import { ANC_ALERT_STYLES } from '@/lib/ancLogic';
 import { cn } from '@/lib/cn';
 import { ds } from '@/lib/design-system';
 
@@ -36,6 +37,9 @@ const FLAG_LABELS: Record<MotherFlag, string> = {
 };
 
 export default function PriorityMotherCard({ mother, onSelect }: Props) {
+  const ancAlert = mother.ancAlertLevel ?? 'none';
+  const alertStyle = ANC_ALERT_STYLES[ancAlert];
+
   return (
     <button
       type="button"
@@ -43,7 +47,8 @@ export default function PriorityMotherCard({ mother, onSelect }: Props) {
       className={cn(
         ds.card,
         ds.cardPadding,
-        'text-left w-full hover:shadow-md hover:border-teal-200/60 transition-all active:scale-[0.99]'
+        'text-left w-full hover:shadow-md hover:border-teal-200/60 transition-all active:scale-[0.99]',
+        ancAlert === 'red' && 'border-rose-200'
       )}
     >
       <div className="flex items-start justify-between gap-2">
@@ -63,6 +68,18 @@ export default function PriorityMotherCard({ mother, onSelect }: Props) {
         </span>
       </div>
 
+      {ancAlert !== 'none' && (
+        <span
+          className={cn(
+            'inline-block text-xs font-medium px-2 py-0.5 rounded-full mt-2',
+            alertStyle.badge
+          )}
+        >
+          ANC {alertStyle.label}
+          {mother.ancDaysOverdue ? ` (${mother.ancDaysOverdue}d)` : ''}
+        </span>
+      )}
+
       {mother.flags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mt-3">
           {mother.flags.map((flag) => (
@@ -80,7 +97,7 @@ export default function PriorityMotherCard({ mother, onSelect }: Props) {
       )}
 
       <p className="text-xs text-slate-400 mt-3">
-        Last seen {mother.lastSeen} days ago
+        Registered {mother.lastSeen} days ago
       </p>
     </button>
   );

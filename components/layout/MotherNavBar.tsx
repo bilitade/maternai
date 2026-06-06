@@ -1,17 +1,14 @@
 'use client';
 
-import type { AppView } from '@/lib/types';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { MOTHER_NAV_ITEMS } from '@/lib/motherNav';
 import { cn } from '@/lib/cn';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import { ds } from '@/lib/design-system';
 
-interface Props {
-  currentView: AppView;
-  navigate: (view: AppView) => void;
-}
-
-export default function MotherNavBar({ currentView, navigate }: Props) {
+export default function MotherNavBar() {
+  const pathname = usePathname();
   const { t } = useLocale();
 
   return (
@@ -20,13 +17,13 @@ export default function MotherNavBar({ currentView, navigate }: Props) {
       aria-label="Mother section navigation"
     >
       <div className="flex gap-2 pb-1 min-w-max">
-        {MOTHER_NAV_ITEMS.map(({ labelKey, icon: Icon, view }) => {
-          const active = currentView === view;
+        {MOTHER_NAV_ITEMS.map(({ labelKey, icon: Icon, href }) => {
+          const active = pathname === href;
           return (
-            <button
-              key={view}
-              type="button"
-              onClick={() => navigate(view)}
+            <Link
+              key={href}
+              href={href}
+              prefetch
               className={cn(
                 'flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all',
                 active ? ds.navPillActive : ds.navPillInactive
@@ -34,7 +31,7 @@ export default function MotherNavBar({ currentView, navigate }: Props) {
             >
               <Icon size={14} />
               {t(labelKey)}
-            </button>
+            </Link>
           );
         })}
       </div>

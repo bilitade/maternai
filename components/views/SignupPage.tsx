@@ -35,7 +35,12 @@ export default function SignupPage({ onSuccess, onGoLogin }: Props) {
     const reg = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, name, role }),
+      body: JSON.stringify({
+        email,
+        password,
+        name: role === 'hew' ? name : name.trim() || undefined,
+        role,
+      }),
     });
     const data = await reg.json();
     if (!reg.ok) {
@@ -59,7 +64,7 @@ export default function SignupPage({ onSuccess, onGoLogin }: Props) {
 
   return (
     <div className={ds.page}>
-      <WebHeader title="Create account" subtitle={t('welcomeSubtitle')} showBrand />
+      <WebHeader title={t('signupTitle')} subtitle={t('signupSub')} showBrand />
       <PageContainer narrow className="py-10">
         <Card padding className="max-w-md mx-auto">
           <div className="flex gap-2 mb-6">
@@ -85,18 +90,20 @@ export default function SignupPage({ onSuccess, onGoLogin }: Props) {
           </div>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            {role === 'hew' && (
+              <div>
+                <label className={labelClassName}>{t('fullName')}</label>
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className={inputClassName}
+                />
+              </div>
+            )}
             <div>
-              <label className={labelClassName}>Full name</label>
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className={inputClassName}
-              />
-            </div>
-            <div>
-              <label className={labelClassName}>Email</label>
+              <label className={labelClassName}>{t('email')}</label>
               <input
                 type="email"
                 required
@@ -106,7 +113,7 @@ export default function SignupPage({ onSuccess, onGoLogin }: Props) {
               />
             </div>
             <div>
-              <label className={labelClassName}>Password (min 6 characters)</label>
+              <label className={labelClassName}>{t('password')}</label>
               <input
                 type="password"
                 required
@@ -116,20 +123,25 @@ export default function SignupPage({ onSuccess, onGoLogin }: Props) {
                 className={inputClassName}
               />
             </div>
+            {role === 'mother' && (
+              <p className="text-xs text-slate-500 -mt-2">
+                Your name and health details are collected once in the next step.
+              </p>
+            )}
             {error && <p className="text-sm text-rose-600">{error}</p>}
             <Button type="submit" fullWidth disabled={loading}>
               {loading && <Loader2 size={16} className="animate-spin" />}
-              Create account
+              {t('signupTitle')}
             </Button>
           </form>
           <p className="text-sm text-slate-500 text-center mt-4">
-            Already have an account?{' '}
+            {t('hasAccount')}{' '}
             <button
               type="button"
               onClick={onGoLogin}
               className="text-teal-700 font-medium hover:underline"
             >
-              Sign in
+              {t('signInLink')}
             </button>
           </p>
         </Card>

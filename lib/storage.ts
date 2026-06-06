@@ -97,3 +97,24 @@ export const getLatestDangerReport = (): DangerSignReport | null => {
   const reports = getDangerSignReports();
   return reports.length ? reports[reports.length - 1] : null;
 };
+
+const MATERNA_KEYS = [
+  'materna_mother_profile',
+  'materna_anc_contacts',
+  'materna_wellness_history',
+  'materna_delivery_prep',
+  'materna_hew_visits',
+  'materna_ai_insights',
+  'materna_danger_reports',
+] as const;
+
+export function clearMaternaStorage(): void {
+  if (typeof window === 'undefined') return;
+  for (const key of MATERNA_KEYS) {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      /* ignore */
+    }
+  }
+}

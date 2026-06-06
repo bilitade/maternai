@@ -105,7 +105,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const t = token as AuthToken;
       session.user.id = t.id as string;
       session.user.role = t.role as UserRole;
-      session.user.hasProfile = t.hasProfile as boolean;
+
+      if (t.id && t.role === 'mother') {
+        try {
+          const db = getDb();
+          const [profile] = await db
+            .select({ id: motherProfiles.id })
+            .from(motherProfiles)
+            .where(eq(motherProfiles.userId, t.id))
+            .limit(1);
+          session.user.hasProfile = Boolean(profile);
+          t.hasProfile = Boolean(profile);
+        } catch {
+          session.user.hasProfile = Boolean(t.hasProfile);
+        }
+      } else {
+        session.user.hasProfile = Boolean(t.hasProfile);
+      }
+
       return session;
     },
   },

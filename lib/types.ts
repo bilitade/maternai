@@ -4,6 +4,8 @@ export type FamilySupport = 'yes' | 'somewhat' | 'no';
 
 export type RegistrationSource = 'self' | 'hew';
 
+export type ANCAlertLevel = 'none' | 'yellow' | 'orange' | 'red';
+
 export type MotherFlag =
   | 'danger_sign'
   | 'missed_anc'
@@ -19,22 +21,47 @@ export interface MotherProfile {
   name: string;
   age: number;
   phone: string;
+  alternativePhone?: string;
+  partnerName?: string;
+  partnerPhone?: string;
   region: string;
+  zone?: string;
+  woreda?: string;
   kebele: string;
+  village?: string;
   lmp: string;
+  edd?: string;
   gestationalAgeWeeks: number;
   gravidity: number;
   parity: number;
+  livingChildren?: number;
+  plannedPregnancy?: boolean;
+  wantedPregnancy?: boolean;
+  multiplePregnancy?: boolean;
   previousCSection: boolean;
   previousStillbirth: boolean;
   hypertension: boolean;
   diabetes: boolean;
+  hiv?: boolean;
+  anemia?: boolean;
+  tb?: boolean;
   familySupport: FamilySupport;
   mealsPerDay: number;
   riskLevel: RiskLevel;
   riskFactors: string[];
   registeredAt: string;
   registeredBy: RegistrationSource;
+}
+
+export interface NutritionProfile {
+  heightCm?: number;
+  currentWeightKg?: number;
+  muacCm?: number;
+  hemoglobin?: number;
+  dietaryDiversityScore?: number;
+  ironAdherencePct?: number;
+  calciumAdherencePct?: number;
+  updatedAt?: string;
 }
 
 export interface ANCContact {
@@ -68,6 +95,9 @@ export interface DemoMother {
   lastSeen: number;
   flags: MotherFlag[];
   ancCompleted: number[];
+  ancAlertLevel?: ANCAlertLevel;
+  ancOverdueContact?: number | null;
+  ancDaysOverdue?: number;
 }
 
 export interface ANCContactDef {
@@ -93,6 +123,7 @@ export interface DangerSign {
 
 export interface AIRequestBody {
   action: AIAction;
+  locale?: 'en' | 'am';
   payload: {
     signs?: string[];
     weeks?: number;
@@ -148,4 +179,21 @@ export type AppView =
 export interface HEWVisit {
   motherId: string;
   date: string;
+}
+
+export type HewActionType =
+  | 'visit'
+  | 'reminder'
+  | 'escalate'
+  | 'phone_call'
+  | 'trace'
+  | 'returned_to_care'
+  | 'referral';
+
+export interface HewAction {
+  id: string;
+  type: HewActionType;
+  date: string;
+  hewUserId: string;
+  notes?: string;
 }

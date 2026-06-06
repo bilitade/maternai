@@ -7,11 +7,9 @@ import type {
   HEWVisit,
 } from './types';
 import {
-  getProfile,
   saveProfile,
   getANCContacts,
   getWellnessHistory,
-  getDeliveryPrep,
   getAIInsights,
   getDangerSignReports,
   getHEWVisits,
@@ -75,14 +73,13 @@ async function syncPatch(body: Record<string, unknown>): Promise<void> {
 
 export async function saveProfileToServer(profile: MotherProfile): Promise<void> {
   saveProfile(profile);
-  try {
-    await fetch('/api/mother', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(profile),
-    });
-  } catch {
-    /* local only */
+  const res = await fetch('/api/mother', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(profile),
+  });
+  if (!res.ok) {
+    throw new Error('Failed to save profile');
   }
 }
 

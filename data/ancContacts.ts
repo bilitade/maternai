@@ -1,7 +1,7 @@
 import type { ANCContactDef } from '@/lib/types';
 
 export const ANC_CONTACTS: ANCContactDef[] = [
-  { id: 1, label: 'ANC 1', recommendedWeek: 10, focus: 'Registration, blood tests, risk assessment' },
+  { id: 1, label: 'ANC 1', recommendedWeek: 12, focus: 'Registration, blood tests, risk assessment (≤12 weeks)' },
   { id: 2, label: 'ANC 2', recommendedWeek: 20, focus: 'Ultrasound, anomaly screening' },
   { id: 3, label: 'ANC 3', recommendedWeek: 26, focus: 'Blood pressure, anemia check' },
   { id: 4, label: 'ANC 4', recommendedWeek: 30, focus: 'Fetal growth assessment' },

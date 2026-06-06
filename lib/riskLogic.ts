@@ -8,9 +8,9 @@ export function calculateRisk(profile: MotherProfile): RiskResult {
     score += 2;
     factors.push('Age 35 or older');
   }
-  if (profile.age < 18) {
+  if (profile.age < 19) {
     score += 2;
-    factors.push('Age under 18');
+    factors.push('Age under 19');
   }
   if (profile.previousCSection) {
     score += 2;
@@ -20,6 +20,10 @@ export function calculateRisk(profile: MotherProfile): RiskResult {
     score += 2;
     factors.push('Previous stillbirth');
   }
+  if (profile.multiplePregnancy) {
+    score += 2;
+    factors.push('Multiple pregnancy');
+  }
   if (profile.hypertension) {
     score += 3;
     factors.push('Hypertension');
@@ -27,6 +31,18 @@ export function calculateRisk(profile: MotherProfile): RiskResult {
   if (profile.diabetes) {
     score += 2;
     factors.push('Diabetes');
+  }
+  if (profile.hiv) {
+    score += 3;
+    factors.push('HIV');
+  }
+  if (profile.anemia) {
+    score += 2;
+    factors.push('Anemia');
+  }
+  if (profile.tb) {
+    score += 2;
+    factors.push('TB');
   }
   if (profile.gravidity >= 4) {
     score += 1;

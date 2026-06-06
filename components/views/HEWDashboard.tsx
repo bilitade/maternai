@@ -1,10 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { AppView, DemoMother } from '@/lib/types';
-import { SAMPLE_MOTHERS } from '@/data/sampleMothers';
-import { getProfile } from '@/lib/storage';
-import { profileToDemoMother, sortMothersByPriority } from '@/lib/hewHelpers';
+import type { DemoMother } from '@/lib/types';
 import PriorityMotherCard from '@/components/ui/PriorityMotherCard';
 import HEWLayout from '@/components/layout/HEWLayout';
 import { useLocale } from '@/components/providers/LocaleProvider';
@@ -13,48 +10,47 @@ import { cn } from '@/lib/cn';
 import { ds } from '@/lib/design-system';
 
 interface Props {
-  navigate: (view: AppView) => void;
   onSelectMother: (m: DemoMother) => void;
   onLogout?: () => void;
 }
 
-export default function HEWDashboard({ navigate, onSelectMother, onLogout }: Props) {
+export default function HEWDashboard({ onSelectMother, onLogout }: Props) {
   const { t } = useLocale();
   const [mothers, setMothers] = useState<DemoMother[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    const run = async () => {
+      setLoading(true);
+      setError('');
       try {
-        const res = await fetch('/api/hew/mothers');
-        if (res.ok) {
-          const data = await res.json();
-          if (!cancelled) setMothers(data.mothers);
+        const res = await fetch('/api/hew/mothers', { cache: 'no-store' });
+        if (cancelled) return;
+        if (!res.ok) {
+          setError('Could not load mothers from database.');
+          setMothers([]);
           return;
         }
+        const data = await res.json();
+        setMothers(data.mothers);
       } catch {
-        /* fall through to local */
+        if (!cancelled) {
+          setError('Network error loading mothers.');
+          setMothers([]);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-      const profile = getProfile();
-      const registeredMother = profile ? profileToDemoMother(profile) : null;
-      if (!cancelled) {
-        setMothers(
-          sortMothersByPriority([
-            ...(registeredMother ? [registeredMother] : []),
-            ...SAMPLE_MOTHERS.filter(
-              (m) => !registeredMother || m.id !== registeredMother.id
-            ),
-          ])
-        );
-      }
-    })().finally(() => {
-      if (!cancelled) setLoading(false);
-    });
+    };
+    void run();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reloadKey]);
 
   const total = mothers.length;
   const highRisk = mothers.filter((m) => m.riskLevel === 'high').length;
@@ -67,7 +63,6 @@ export default function HEWDashboard({ navigate, onSelectMother, onLogout }: Pro
 
   return (
     <HEWLayout
-      navigate={navigate}
       title={t('hewDashboard')}
       subtitle={t('hewDashboardSub')}
       headerActions={
@@ -81,6 +76,24 @@ export default function HEWDashboard({ navigate, onSelectMother, onLogout }: Pro
       <div className="flex flex-col gap-6 lg:gap-8">
         {loading ? (
           <p className="text-sm text-slate-500">Loading mothers from database...</p>
+        ) : error ? (
+          <Card>
+            <p className="text-sm text-rose-600">{error}</p>
+            <button
+              type="button"
+              onClick={() => setReloadKey((k) => k + 1)}
+              className={cn('text-sm mt-2 font-medium', ds.brandText)}
+            >
+              Retry
+            </button>
+          </Card>
+        ) : mothers.length === 0 ? (
+          <Card>
+            <p className="text-sm text-slate-600">
+              No registered mothers yet. Mothers appear here after they create an
+              account and complete onboarding.
+            </p>
+          </Card>
         ) : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
