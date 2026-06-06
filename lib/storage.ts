@@ -3,6 +3,8 @@ import type {
   ANCContact,
   WellnessEntry,
   HEWVisit,
+  AIInsight,
+  DangerSignReport,
 } from './types';
 
 const KEYS = {
@@ -11,6 +13,8 @@ const KEYS = {
   WELLNESS: 'materna_wellness_history',
   DELIVERY_PREP: 'materna_delivery_prep',
   HEW_VISITS: 'materna_hew_visits',
+  AI_INSIGHTS: 'materna_ai_insights',
+  DANGER_REPORTS: 'materna_danger_reports',
 } as const;
 
 function safeGet<T>(key: string): T | null {
@@ -66,4 +70,30 @@ export const getHEWVisits = (): HEWVisit[] =>
 export const saveHEWVisit = (visit: HEWVisit): void => {
   const visits = getHEWVisits();
   safeSet(KEYS.HEW_VISITS, [...visits, visit]);
+};
+
+export const getAIInsights = (): AIInsight[] =>
+  safeGet<AIInsight[]>(KEYS.AI_INSIGHTS) ?? [];
+
+export const saveAIInsight = (insight: AIInsight): void => {
+  const history = getAIInsights();
+  safeSet(KEYS.AI_INSIGHTS, [...history.slice(-19), insight]);
+};
+
+export const getLatestAIInsight = (): AIInsight | null => {
+  const insights = getAIInsights();
+  return insights.length ? insights[insights.length - 1] : null;
+};
+
+export const getDangerSignReports = (): DangerSignReport[] =>
+  safeGet<DangerSignReport[]>(KEYS.DANGER_REPORTS) ?? [];
+
+export const saveDangerSignReport = (report: DangerSignReport): void => {
+  const reports = getDangerSignReports();
+  safeSet(KEYS.DANGER_REPORTS, [...reports, report]);
+};
+
+export const getLatestDangerReport = (): DangerSignReport | null => {
+  const reports = getDangerSignReports();
+  return reports.length ? reports[reports.length - 1] : null;
 };

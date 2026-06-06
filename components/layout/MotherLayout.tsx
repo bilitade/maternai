@@ -6,6 +6,7 @@ import WebHeader from './WebHeader';
 import MotherSidebar from './MotherSidebar';
 import MotherNavBar from './MotherNavBar';
 import { useLocale } from '@/components/providers/LocaleProvider';
+import { ds } from '@/lib/design-system';
 
 interface Props {
   currentView: AppView;
@@ -34,7 +35,7 @@ export default function MotherLayout({
   const isDashboard = currentView === 'motherDashboard';
 
   return (
-    <div className="flex flex-col min-h-screen w-full">
+    <div className={ds.page}>
       <WebHeader
         title={title}
         subtitle={subtitle}
@@ -43,7 +44,7 @@ export default function MotherLayout({
         actions={headerActions}
         showBrand={isDashboard}
       />
-      <PageContainer className="py-6 lg:py-8 flex-1">
+      <PageContainer className="py-6 lg:py-10 flex-1">
         <MotherNavBar currentView={currentView} navigate={navigate} />
         <div className="flex gap-8 lg:gap-10">
           <MotherSidebar currentView={currentView} navigate={navigate} />

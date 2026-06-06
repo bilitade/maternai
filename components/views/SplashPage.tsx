@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import LanguageToggle from '@/components/ui/LanguageToggle';
 import { useLocale } from '@/components/providers/LocaleProvider';
+import { ds } from '@/lib/design-system';
 
 interface Props {
   onDone: () => void;
@@ -17,30 +18,21 @@ export default function SplashPage({ onDone }: Props) {
   }, [onDone]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-emerald-700 text-white px-8 relative">
-      <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
+    <div className={ds.splash + ' relative'}>
+      <div className="absolute top-5 right-5 sm:top-6 sm:right-6">
         <LanguageToggle />
       </div>
-      <svg
-        width="80"
-        height="80"
-        viewBox="0 0 80 80"
-        fill="none"
-        className="mb-6 md:w-24 md:h-24"
-      >
-        <circle cx="40" cy="40" r="40" fill="rgba(255,255,255,0.15)" />
-        <path
-          d="M40 62s-22-14-22-28a12 12 0 0124 0 12 12 0 0124 0c0 14-26 28-26 28z"
-          fill="white"
-        />
-      </svg>
-      <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-2">
-        {t('appName')}
-      </h1>
-      <p className="text-emerald-200 text-lg md:text-xl">{t('tagline')}</p>
-      <p className="text-emerald-300 text-sm md:text-base mt-1">
-        {t('taglineAmharic')}
-      </p>
+      <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-teal-100 flex items-center justify-center mb-8 ring-4 ring-teal-50 shadow-sm">
+        <svg width="48" height="48" viewBox="0 0 80 80" fill="none">
+          <path
+            d="M40 62s-22-14-22-28a12 12 0 0124 0 12 12 0 0124 0c0 14-26 28-26 28z"
+            fill="#0d9488"
+          />
+        </svg>
+      </div>
+      <h1 className={ds.splashTitle}>{t('appName')}</h1>
+      <p className={ds.splashTagline + ' mt-2'}>{t('tagline')}</p>
+      <p className={ds.splashTaglineAlt}>{t('taglineAmharic')}</p>
     </div>
   );
 }

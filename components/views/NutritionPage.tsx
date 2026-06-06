@@ -1,15 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { AppView, Food } from '@/lib/types';
 import { FOODS } from '@/data/ethiopianFoods';
-import { getProfile } from '@/lib/storage';
+import { getProfile, saveAIInsight } from '@/lib/storage';
 import { getTrimester } from '@/lib/riskLogic';
 import { getNutritionTip } from '@/lib/ai';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import NutritionCard from '@/components/ui/NutritionCard';
 import MotherLayout from '@/components/layout/MotherLayout';
+import { Button } from '@/components/ui/Card';
+import AISourceBadge from '@/components/ui/AISourceBadge';
+import { cn } from '@/lib/cn';
+import { ds } from '@/lib/design-system';
 
 interface Props {
   navigate: (view: AppView) => void;
@@ -19,84 +23,107 @@ interface Props {
 type Trimester = 1 | 2 | 3;
 
 const NUTRIENT_COLORS: Record<Food['nutrient'], string> = {
-  Iron: 'bg-red-100 text-red-700',
-  Protein: 'bg-blue-100 text-blue-700',
-  Folate: 'bg-green-100 text-green-700',
+  Iron: 'bg-rose-100 text-rose-700',
+  Protein: 'bg-sky-100 text-sky-700',
+  Folate: 'bg-teal-100 text-teal-700',
   Energy: 'bg-amber-100 text-amber-700',
-  Calcium: 'bg-purple-100 text-purple-700',
+  Calcium: 'bg-violet-100 text-violet-700',
 };
 
 export default function NutritionPage({ navigate, currentView }: Props) {
   const { t } = useLocale();
   const profile = getProfile();
+  const weeks = profile?.gestationalAgeWeeks ?? 20;
   const [activeTrimester, setActiveTrimester] = useState<Trimester>(
-    getTrimester(profile?.gestationalAgeWeeks ?? 12)
+    getTrimester(weeks)
   );
   const [tip, setTip] = useState<string | null>(null);
+  const [tipSource, setTipSource] = useState<'ai' | 'offline' | null>(null);
   const [loading, setLoading] = useState(false);
 
   const filteredFoods = FOODS.filter((f) =>
     f.trimesters.includes(activeTrimester)
   );
 
-  const handleGetTip = async () => {
+  const fetchTip = async () => {
     setLoading(true);
-    setTip(null);
     try {
-      const text = await getNutritionTip(
-        profile?.gestationalAgeWeeks ?? 20,
+      const { text, source } = await getNutritionTip(
+        weeks,
         profile?.riskFactors ?? []
       );
       setTip(text);
+      setTipSource(source);
+      saveAIInsight({
+        type: 'nutrition',
+        text,
+        source,
+        date: new Date().toISOString(),
+        meta: { score: weeks },
+      });
     } catch {
       setTip(t('aiError'));
+      setTipSource(null);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchTip();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <MotherLayout
       currentView={currentView}
       navigate={navigate}
       title="Nutrition Guide"
-      subtitle="Ethiopian foods for a healthy pregnancy"
+      subtitle={`Week ${weeks} — personalized AI tip + Ethiopian foods`}
       onBack={() => navigate('motherDashboard')}
       backLabel="Dashboard"
     >
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <div className="flex gap-2 flex-1 max-w-md">
-            {([1, 2, 3] as Trimester[]).map((t) => (
-              <button
-                key={t}
-                onClick={() => setActiveTrimester(t)}
-                className={`flex-1 py-2 rounded-xl text-sm font-medium transition-colors
-                  ${
-                    activeTrimester === t
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
-                  }`}
-              >
-                Trimester {t}
-              </button>
-            ))}
+        <div className={ds.alertSuccess}>
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <p className="text-xs font-semibold text-teal-800 uppercase tracking-wide">
+              Your AI nutrition tip
+            </p>
+            {tipSource && <AISourceBadge source={tipSource} />}
           </div>
-          <button
-            onClick={handleGetTip}
+          {loading ? (
+            <div className="flex items-center gap-2 text-teal-700">
+              <Loader2 size={16} className="animate-spin" />
+              <span className="text-sm">Generating tip for week {weeks}...</span>
+            </div>
+          ) : tip ? (
+            <p className={ds.alertSuccessText}>{tip}</p>
+          ) : null}
+          <Button
+            variant="secondary"
+            onClick={fetchTip}
             disabled={loading}
-            className="bg-emerald-600 text-white rounded-xl px-5 py-2.5 text-sm font-medium hover:bg-emerald-700 active:scale-95 transition-all disabled:opacity-60 flex items-center justify-center gap-2 sm:shrink-0"
+            className="mt-3"
           >
-            {loading && <Loader2 size={16} className="animate-spin" />}
-            {loading ? 'Getting tip...' : 'Get My Tip'}
-          </button>
+            Refresh tip
+          </Button>
         </div>
 
-        {tip && (
-          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5">
-            <p className="text-sm text-emerald-800">{tip}</p>
-          </div>
-        )}
+        <div className="flex gap-2 max-w-md">
+          {([1, 2, 3] as Trimester[]).map((tri) => (
+            <button
+              key={tri}
+              type="button"
+              onClick={() => setActiveTrimester(tri)}
+              className={cn(
+                'flex-1 py-2 rounded-xl text-sm font-medium transition-colors',
+                activeTrimester === tri ? ds.navPillActive : ds.navPillInactive
+              )}
+            >
+              Trimester {tri}
+            </button>
+          ))}
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredFoods.map((food) => (

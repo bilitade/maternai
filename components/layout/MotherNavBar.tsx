@@ -4,6 +4,7 @@ import type { AppView } from '@/lib/types';
 import { MOTHER_NAV_ITEMS } from '@/lib/motherNav';
 import { cn } from '@/lib/cn';
 import { useLocale } from '@/components/providers/LocaleProvider';
+import { ds } from '@/lib/design-system';
 
 interface Props {
   currentView: AppView;
@@ -24,12 +25,11 @@ export default function MotherNavBar({ currentView, navigate }: Props) {
           return (
             <button
               key={view}
+              type="button"
               onClick={() => navigate(view)}
               className={cn(
-                'flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-colors',
-                active
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+                'flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all',
+                active ? ds.navPillActive : ds.navPillInactive
               )}
             >
               <Icon size={14} />

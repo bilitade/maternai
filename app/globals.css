@@ -2,17 +2,29 @@
 
 :root {
   color-scheme: light;
-  --background: #f9fafb;
-  --foreground: #111827;
+  --background: #f8fafc;
+  --foreground: #0f172a;
   --input-bg: #ffffff;
-  --input-text: #111827;
-  --input-border: #e5e7eb;
-  --placeholder: #9ca3af;
+  --input-text: #0f172a;
+  --input-border: #e2e8f0;
+  --placeholder: #94a3b8;
+
+  /* Brand — soft teal */
+  --brand-50: #f0fdfa;
+  --brand-100: #ccfbf1;
+  --brand-500: #14b8a6;
+  --brand-600: #0d9488;
+  --brand-700: #0f766e;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -25,9 +37,10 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Form controls — explicit colors so OS dark mode cannot wash out text */
 input,
 select,
 textarea {
@@ -52,11 +65,16 @@ select {
 }
 
 select option {
-  color: #111827;
+  color: #0f172a;
   background-color: #ffffff;
 }
 
-/* Recharts / SVG text inherits correctly */
 svg text {
   fill: currentColor;
+}
+
+/* Subtle scrollbar on nav overflow */
+.overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
 }

@@ -111,11 +111,11 @@ export default function Home() {
 | Component | Role |
 |-----------|------|
 | `PageContainer` | Responsive padding, `max-w-7xl` (or `max-w-3xl` for forms) |
-| `WebHeader` | Full-width emerald header with back link + brand |
+| `WebHeader` | Light header with back link + brand |
 | `MotherLayout` | Sidebar (desktop) + horizontal nav (tablet/mobile) + `<main>` |
 | `HEWLayout` | HEW pages with switch-role action |
 
-Design tokens: emerald primary, rounded-2xl cards, responsive grids (`sm` / `md` / `lg` / `xl`).
+Design tokens: see `lib/design-system.ts` — soft teal brand on slate neutrals, `Card`/`Button` components, rounded-2xl cards, responsive grids (`sm` / `md` / `lg` / `xl`).
 
 ---
 

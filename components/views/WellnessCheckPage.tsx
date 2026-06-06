@@ -3,10 +3,14 @@
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { AppView } from '@/lib/types';
-import { getWellnessHistory, saveWellnessEntry } from '@/lib/storage';
+import { getWellnessHistory, saveWellnessEntry, saveAIInsight } from '@/lib/storage';
 import { getWellnessMessage } from '@/lib/ai';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import MotherLayout from '@/components/layout/MotherLayout';
+import Card, { Button } from '@/components/ui/Card';
+import AISourceBadge from '@/components/ui/AISourceBadge';
+import { cn } from '@/lib/cn';
+import { ds } from '@/lib/design-system';
 
 interface Props {
   navigate: (view: AppView) => void;
@@ -34,6 +38,9 @@ export default function WellnessCheckPage({
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [message, setMessage] = useState<string | null>(null);
+  const [messageSource, setMessageSource] = useState<'ai' | 'offline' | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
 
   const allAnswered = answers.every((a) => a !== null);
@@ -58,112 +65,127 @@ export default function WellnessCheckPage({
       else break;
     }
 
-    if (computedScore < 40 && consecutiveLow >= 2) {
-      setLoading(true);
-      try {
-        const text = await getWellnessMessage(computedScore, consecutiveLow);
-        setMessage(text);
-      } catch {
-        setMessage(t('aiError'));
-      } finally {
-        setLoading(false);
-      }
+    setLoading(true);
+    try {
+      const { text, source } = await getWellnessMessage(
+        computedScore,
+        consecutiveLow
+      );
+      setMessage(text);
+      setMessageSource(source);
+      saveAIInsight({
+        type: 'wellness',
+        text,
+        source,
+        date: new Date().toISOString(),
+        meta: { score: computedScore },
+      });
+    } catch {
+      setMessage(t('aiError'));
+      setMessageSource(null);
+    } finally {
+      setLoading(false);
     }
   };
 
   const scoreColor =
     score >= 70
-      ? 'text-emerald-600'
+      ? 'text-teal-600'
       : score >= 40
         ? 'text-amber-600'
-        : 'text-red-600';
+        : 'text-rose-600';
 
   return (
     <MotherLayout
       currentView={currentView}
       navigate={navigate}
       title="Weekly Check-in"
-      subtitle="Track your mental and physical wellness"
+      subtitle="AI responds to every check-in with personalized support"
       onBack={() => navigate('motherDashboard')}
       backLabel="Dashboard"
     >
       {!submitted ? (
         <div className="max-w-3xl flex flex-col gap-6">
           {QUESTIONS.map((q, i) => (
-            <div
-              key={i}
-              className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm"
-            >
-              <p className="text-sm lg:text-base font-medium text-gray-800 mb-3">
+            <Card key={i}>
+              <p className="text-sm lg:text-base font-medium text-slate-800 mb-3">
                 {q}
               </p>
               <div className="flex justify-between gap-2 max-w-md">
                 {EMOJIS.map((emoji, val) => (
                   <button
                     key={val}
+                    type="button"
                     onClick={() => {
                       const next = [...answers];
                       next[i] = val + 1;
                       setAnswers(next);
                     }}
-                    className={`flex-1 py-3 text-xl sm:text-2xl rounded-xl border transition-colors
-                      ${
-                        answers[i] === val + 1
-                          ? 'border-emerald-500 bg-emerald-50'
-                          : 'border-gray-200 bg-gray-50 hover:bg-white'
-                      }`}
+                    className={cn(
+                      'flex-1 py-3 text-xl sm:text-2xl rounded-xl border transition-colors',
+                      answers[i] === val + 1
+                        ? ds.chipSelected
+                        : ds.chipDefault
+                    )}
                   >
                     {emoji}
                   </button>
                 ))}
               </div>
-            </div>
+            </Card>
           ))}
-          <button
+          <Button
             onClick={handleSubmit}
             disabled={!allAnswered}
-            className="bg-emerald-600 text-white rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-emerald-700 active:scale-95 transition-all w-full sm:w-auto sm:min-w-[200px] disabled:opacity-50"
+            className="w-full sm:w-auto sm:min-w-[200px]"
           >
-            Submit Check-in
-          </button>
+            Submit & get AI support
+          </Button>
         </div>
       ) : (
         <div className="max-w-2xl flex flex-col gap-4">
-          <div className="bg-white border border-gray-100 rounded-2xl p-8 text-center shadow-sm">
-            <p className="text-sm text-gray-600 mb-1">Your wellness score</p>
-            <p className={`text-5xl lg:text-6xl font-bold ${scoreColor}`}>
+          <Card className="text-center py-8">
+            <p className="text-sm text-slate-600 mb-1">Your wellness score</p>
+            <p className={cn('text-5xl lg:text-6xl font-bold', scoreColor)}>
               {score}
             </p>
-            <p className="text-sm text-gray-500 mt-1">out of 100</p>
-          </div>
+            <p className="text-sm text-slate-500 mt-1">out of 100</p>
+          </Card>
 
           {loading && (
-            <div className="flex items-center justify-center gap-2 text-gray-500">
+            <div className="flex items-center justify-center gap-2 text-slate-500">
               <Loader2 size={16} className="animate-spin" />
-              <span className="text-sm">Getting support message...</span>
+              <span className="text-sm">AI is writing your support message...</span>
             </div>
           )}
 
-          {message && (
-            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5">
-              <p className="text-sm text-blue-800">{message}</p>
+          {message && !loading && (
+            <div className={ds.alertInfo}>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <p className="text-xs font-semibold text-sky-800 uppercase tracking-wide">
+                  AI wellness message
+                </p>
+                {messageSource && <AISourceBadge source={messageSource} />}
+              </div>
+              <p className={ds.alertInfoText}>{message}</p>
             </div>
           )}
 
           {score < 40 && (
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-5">
-              <p className="text-sm font-medium text-red-800">
+            <div className={ds.alertDanger}>
+              <p className={cn(ds.alertDangerText, 'font-medium')}>
                 {t('crisisHelpline')}
               </p>
             </div>
           )}
 
-          <button
+          <Button
+            variant="secondary"
             onClick={() => navigate('motherDashboard')}
-            className="border border-gray-200 text-gray-700 rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto"
+            className="w-full sm:w-auto"
           >
             Back to Dashboard
-          </button>
+          </Button>
         </div>
       )}
     </MotherLayout>

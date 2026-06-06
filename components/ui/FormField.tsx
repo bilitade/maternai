@@ -1,12 +1,9 @@
 import { cn } from '@/lib/cn';
+import { ds } from '@/lib/design-system';
 
-export const inputClassName =
-  'mt-1 w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm text-gray-900 bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500';
-
-export const labelClassName = 'text-sm font-medium text-gray-800';
-
-export const selectClassName =
-  'mt-1 w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500';
+export const inputClassName = ds.input;
+export const labelClassName = ds.label;
+export const selectClassName = ds.select;
 
 interface FieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;

@@ -1,9 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { Lock } from 'lucide-react';
 import type { AppView } from '@/lib/types';
 import { getProfile, getDeliveryPrep, saveDeliveryPrep } from '@/lib/storage';
 import MotherLayout from '@/components/layout/MotherLayout';
+import Card from '@/components/ui/Card';
+import { cn } from '@/lib/cn';
+import { ds } from '@/lib/design-system';
 
 interface Props {
   navigate: (view: AppView) => void;
@@ -54,19 +58,21 @@ export default function DeliveryPrepPage({
         backLabel="Dashboard"
       >
         <div className="flex items-center justify-center py-12 lg:py-20">
-          <div className="bg-white border border-gray-100 rounded-2xl p-8 lg:p-10 shadow-sm text-center max-w-md w-full">
-            <p className="text-4xl mb-3">🔒</p>
-            <p className="font-semibold text-gray-900 text-lg">
+          <Card className="text-center max-w-md w-full py-10">
+            <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+              <Lock size={22} className="text-slate-500" strokeWidth={1.75} />
+            </div>
+            <p className="font-semibold text-slate-900 text-lg">
               Not yet available
             </p>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-slate-600 mt-2">
               Delivery preparation unlocks at week 32. You have{' '}
-              <span className="font-medium text-emerald-700">
+              <span className={cn('font-medium', ds.brandText)}>
                 {32 - weeks} weeks
               </span>{' '}
               remaining.
             </p>
-          </div>
+          </Card>
         </div>
       </MotherLayout>
     );
@@ -82,44 +88,43 @@ export default function DeliveryPrepPage({
       backLabel="Dashboard"
     >
       <div className="max-w-3xl flex flex-col gap-6">
-        <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+        <Card>
           <div className="flex justify-between text-sm mb-2">
-            <span className="text-gray-600 font-medium">Progress</span>
-            <span className="font-semibold text-emerald-700">
+            <span className="text-slate-600 font-medium">Progress</span>
+            <span className={cn('font-semibold', ds.brandText)}>
               {Math.round(progress)}%
             </span>
           </div>
-          <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
+          <div className={ds.progressTrack}>
             <div
-              className="h-full bg-emerald-600 rounded-full transition-all"
+              className={ds.progressFill}
               style={{ width: `${progress}%` }}
             />
           </div>
-        </div>
+        </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {CHECKLIST.map((item, i) => (
             <button
               key={i}
+              type="button"
               onClick={() => toggle(i)}
-              className={`flex items-start gap-3 p-4 rounded-2xl border text-left transition-colors
-                ${
-                  checked.has(i)
-                    ? 'bg-emerald-50 border-emerald-200'
-                    : 'bg-white border-gray-100 hover:border-gray-200'
-                }`}
+              className={cn(
+                'flex items-start gap-3 p-4 rounded-2xl border text-left transition-colors',
+                checked.has(i)
+                  ? ds.checklistDone
+                  : 'bg-white border-slate-200/80 hover:border-slate-300'
+              )}
             >
               <span
-                className={`w-5 h-5 rounded-md border-2 flex-shrink-0 mt-0.5 flex items-center justify-center text-xs
-                  ${
-                    checked.has(i)
-                      ? 'bg-emerald-600 border-emerald-600 text-white'
-                      : 'border-gray-300'
-                  }`}
+                className={cn(
+                  'w-5 h-5 rounded-md border-2 flex-shrink-0 mt-0.5 flex items-center justify-center text-xs',
+                  checked.has(i) ? ds.checklistCheck : 'border-slate-300'
+                )}
               >
                 {checked.has(i) ? '✓' : ''}
               </span>
-              <span className="text-sm text-gray-800">{item}</span>
+              <span className="text-sm text-slate-800 leading-snug">{item}</span>
             </button>
           ))}
         </div>

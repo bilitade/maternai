@@ -102,6 +102,30 @@ export interface AIRequestBody {
 
 export interface AIResponseBody {
   text: string;
+  source: 'ai' | 'offline';
+}
+
+export type AIInsightType = 'danger' | 'nutrition' | 'wellness';
+
+export interface AIInsight {
+  type: AIInsightType;
+  text: string;
+  source: 'ai' | 'offline';
+  date: string;
+  meta?: {
+    signs?: string[];
+    urgent?: boolean;
+    score?: number;
+  };
+}
+
+export interface DangerSignReport {
+  id: string;
+  date: string;
+  signs: string[];
+  response: string;
+  urgent: boolean;
+  source: 'ai' | 'offline';
 }
 
 export type AppView =

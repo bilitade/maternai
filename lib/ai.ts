@@ -1,9 +1,14 @@
 import type { AIResponseBody } from './types';
 
+export interface AIResult {
+  text: string;
+  source: 'ai' | 'offline';
+}
+
 async function callAI(
   action: 'dangerSigns' | 'nutrition' | 'wellness',
   payload: Record<string, unknown>
-): Promise<string> {
+): Promise<AIResult> {
   const res = await fetch('/api/ai', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -11,26 +16,26 @@ async function callAI(
   });
   if (!res.ok) throw new Error('AI request failed');
   const data: AIResponseBody = await res.json();
-  return data.text;
+  return { text: data.text, source: data.source ?? 'offline' };
 }
 
 export async function analyzeDangerSigns(
   signs: string[],
   weeks: number
-): Promise<string> {
+): Promise<AIResult> {
   return callAI('dangerSigns', { signs, weeks });
 }
 
 export async function getNutritionTip(
   weeks: number,
   riskFactors: string[]
-): Promise<string> {
+): Promise<AIResult> {
   return callAI('nutrition', { weeks, riskFactors });
 }
 
 export async function getWellnessMessage(
   score: number,
   lowWeeks: number
-): Promise<string> {
+): Promise<AIResult> {
   return callAI('wellness', { score, lowWeeks });
 }

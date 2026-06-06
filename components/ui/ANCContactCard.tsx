@@ -1,6 +1,7 @@
 'use client';
 
 import type { ANCContactDef } from '@/lib/types';
+import Card, { Button } from '@/components/ui/Card';
 
 interface Props {
   contact: ANCContactDef;
@@ -21,11 +22,11 @@ export default function ANCContactCard({
   showMarkButton,
 }: Props) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+    <Card hover padding>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-semibold text-gray-900">{contact.label}</p>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="font-semibold text-slate-900">{contact.label}</p>
+          <p className="text-xs text-slate-500 mt-0.5">
             Week {contact.recommendedWeek}
           </p>
         </div>
@@ -35,20 +36,17 @@ export default function ANCContactCard({
           {statusLabel}
         </span>
       </div>
-      <p className="text-sm text-gray-600 mt-2">{contact.focus}</p>
+      <p className="text-sm text-slate-600 mt-2 leading-relaxed">{contact.focus}</p>
       {completedDate && (
-        <p className="text-xs text-emerald-600 mt-2">
+        <p className="text-xs text-teal-700 mt-2 font-medium">
           Completed on {completedDate}
         </p>
       )}
       {showMarkButton && (
-        <button
-          onClick={onMarkComplete}
-          className="mt-3 bg-emerald-600 text-white rounded-xl px-4 py-2 text-sm font-medium hover:bg-emerald-700 active:scale-95 transition-all w-full"
-        >
+        <Button onClick={onMarkComplete} fullWidth className="mt-4">
           Mark as Completed
-        </button>
+        </Button>
       )}
-    </div>
+    </Card>
   );
 }

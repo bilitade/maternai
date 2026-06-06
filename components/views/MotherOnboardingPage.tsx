@@ -8,6 +8,9 @@ import WebHeader from '@/components/layout/WebHeader';
 import PageContainer from '@/components/layout/PageContainer';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import { inputClassName, labelClassName, selectClassName } from '@/components/ui/FormField';
+import Card, { Button } from '@/components/ui/Card';
+import { cn } from '@/lib/cn';
+import { ds } from '@/lib/design-system';
 
 interface Props {
   onComplete: () => void;
@@ -85,14 +88,15 @@ export default function MotherOnboardingPage({ onComplete }: Props) {
           {[1, 2, 3].map((n) => (
             <div
               key={n}
-              className={`h-1.5 flex-1 rounded-full transition-colors ${
-                step >= n ? 'bg-emerald-600' : 'bg-gray-200'
-              }`}
+              className={cn(
+                'h-1.5 flex-1 rounded-full transition-colors',
+                step >= n ? 'bg-teal-500' : 'bg-slate-200'
+              )}
             />
           ))}
         </div>
 
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 lg:p-8">
+        <Card padding className="lg:p-8">
         {step === 1 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
             <div>
@@ -151,13 +155,14 @@ export default function MotherOnboardingPage({ onComplete }: Props) {
                 placeholder="Your kebele"
               />
             </div>
-            <button
+            <Button
               onClick={() => setStep(2)}
               disabled={!canProceedStep1}
-              className="bg-emerald-600 text-white rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-emerald-700 active:scale-95 transition-all w-full md:col-span-2 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+              fullWidth
+              className="md:col-span-2 mt-2"
             >
               Continue
-            </button>
+            </Button>
           </div>
         )}
 
@@ -174,7 +179,7 @@ export default function MotherOnboardingPage({ onComplete }: Props) {
                 className={inputClassName}
               />
               {gestationalWeeks !== null && (
-                <p className="text-sm text-emerald-700 mt-2 font-medium">
+                <p className={cn('text-sm mt-2 font-medium', ds.brandText)}>
                   You are approximately {gestationalWeeks} weeks pregnant
                 </p>
               )}
@@ -229,12 +234,12 @@ export default function MotherOnboardingPage({ onComplete }: Props) {
                     onClick={() =>
                       setField('previousCSection', opt === 'Yes')
                     }
-                    className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-colors
-                      ${
-                        formData.previousCSection === (opt === 'Yes')
-                          ? 'bg-emerald-600 text-white border-emerald-600'
-                          : 'bg-white text-gray-900 border-gray-300'
-                      }`}
+                    className={cn(
+                      'flex-1 py-2 rounded-xl text-sm font-medium border transition-colors',
+                      formData.previousCSection === (opt === 'Yes')
+                        ? ds.navPillActive + ' border-teal-600'
+                        : ds.navPillInactive
+                    )}
                   >
                     {opt}
                   </button>
@@ -253,12 +258,12 @@ export default function MotherOnboardingPage({ onComplete }: Props) {
                     onClick={() =>
                       setField('previousStillbirth', opt === 'Yes')
                     }
-                    className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-colors
-                      ${
-                        formData.previousStillbirth === (opt === 'Yes')
-                          ? 'bg-emerald-600 text-white border-emerald-600'
-                          : 'bg-white text-gray-900 border-gray-300'
-                      }`}
+                    className={cn(
+                      'flex-1 py-2 rounded-xl text-sm font-medium border transition-colors',
+                      formData.previousStillbirth === (opt === 'Yes')
+                        ? ds.navPillActive + ' border-teal-600'
+                        : ds.navPillInactive
+                    )}
                   >
                     {opt}
                   </button>
@@ -266,19 +271,17 @@ export default function MotherOnboardingPage({ onComplete }: Props) {
               </div>
             </div>
             <div className="md:col-span-2 flex gap-2 mt-2">
-              <button
-                onClick={() => setStep(1)}
-                className="border border-gray-200 text-gray-700 rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors flex-1"
-              >
+              <Button variant="secondary" onClick={() => setStep(1)} fullWidth className="flex-1">
                 Back
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setStep(3)}
                 disabled={!canProceedStep2}
-                className="bg-emerald-600 text-white rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-emerald-700 active:scale-95 transition-all flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                fullWidth
+                className="flex-1"
               >
                 Continue
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -295,12 +298,12 @@ export default function MotherOnboardingPage({ onComplete }: Props) {
                     key={opt}
                     type="button"
                     onClick={() => setField('hypertension', opt === 'Yes')}
-                    className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-colors
-                      ${
-                        formData.hypertension === (opt === 'Yes')
-                          ? 'bg-emerald-600 text-white border-emerald-600'
-                          : 'bg-white text-gray-900 border-gray-300'
-                      }`}
+                    className={cn(
+                      'flex-1 py-2 rounded-xl text-sm font-medium border transition-colors',
+                      formData.hypertension === (opt === 'Yes')
+                        ? ds.navPillActive + ' border-teal-600'
+                        : ds.navPillInactive
+                    )}
                   >
                     {opt}
                   </button>
@@ -317,12 +320,12 @@ export default function MotherOnboardingPage({ onComplete }: Props) {
                     key={opt}
                     type="button"
                     onClick={() => setField('diabetes', opt === 'Yes')}
-                    className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-colors
-                      ${
-                        formData.diabetes === (opt === 'Yes')
-                          ? 'bg-emerald-600 text-white border-emerald-600'
-                          : 'bg-white text-gray-900 border-gray-300'
-                      }`}
+                    className={cn(
+                      'flex-1 py-2 rounded-xl text-sm font-medium border transition-colors',
+                      formData.diabetes === (opt === 'Yes')
+                        ? ds.navPillActive + ' border-teal-600'
+                        : ds.navPillInactive
+                    )}
                   >
                     {opt}
                   </button>
@@ -345,12 +348,12 @@ export default function MotherOnboardingPage({ onComplete }: Props) {
                     key={value}
                     type="button"
                     onClick={() => setField('familySupport', value as FamilySupport)}
-                    className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-colors
-                      ${
-                        formData.familySupport === value
-                          ? 'bg-emerald-600 text-white border-emerald-600'
-                          : 'bg-white text-gray-900 border-gray-300'
-                      }`}
+                    className={cn(
+                      'flex-1 py-2 rounded-xl text-sm font-medium border transition-colors',
+                      formData.familySupport === value
+                        ? ds.navPillActive + ' border-teal-600'
+                        : ds.navPillInactive
+                    )}
                   >
                     {label}
                   </button>
@@ -373,12 +376,12 @@ export default function MotherOnboardingPage({ onComplete }: Props) {
                     key={label}
                     type="button"
                     onClick={() => setField('mealsPerDay', value)}
-                    className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-colors
-                      ${
-                        formData.mealsPerDay === value
-                          ? 'bg-emerald-600 text-white border-emerald-600'
-                          : 'bg-white text-gray-900 border-gray-300'
-                      }`}
+                    className={cn(
+                      'flex-1 py-2 rounded-xl text-sm font-medium border transition-colors',
+                      formData.mealsPerDay === value
+                        ? ds.navPillActive + ' border-teal-600'
+                        : ds.navPillInactive
+                    )}
                   >
                     {label}
                   </button>
@@ -386,22 +389,16 @@ export default function MotherOnboardingPage({ onComplete }: Props) {
               </div>
             </div>
             <div className="md:col-span-2 flex gap-2 mt-2">
-              <button
-                onClick={() => setStep(2)}
-                className="border border-gray-200 text-gray-700 rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors flex-1"
-              >
+              <Button variant="secondary" onClick={() => setStep(2)} fullWidth className="flex-1">
                 Back
-              </button>
-              <button
-                onClick={handleComplete}
-                className="bg-emerald-600 text-white rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-emerald-700 active:scale-95 transition-all flex-1"
-              >
+              </Button>
+              <Button onClick={handleComplete} fullWidth className="flex-1">
                 Complete Registration
-              </button>
+              </Button>
             </div>
           </div>
         )}
-        </div>
+        </Card>
       </PageContainer>
     </div>
   );

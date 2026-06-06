@@ -13,10 +13,14 @@ import {
   Loader2,
 } from 'lucide-react';
 import type { AppView, DangerSign } from '@/lib/types';
-import { getProfile } from '@/lib/storage';
+import { getProfile, saveAIInsight, saveDangerSignReport } from '@/lib/storage';
 import { analyzeDangerSigns } from '@/lib/ai';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import MotherLayout from '@/components/layout/MotherLayout';
+import Card, { Button } from '@/components/ui/Card';
+import AISourceBadge from '@/components/ui/AISourceBadge';
+import { cn } from '@/lib/cn';
+import { ds } from '@/lib/design-system';
 
 interface Props {
   navigate: (view: AppView) => void;
@@ -52,11 +56,22 @@ const DANGER_SIGNS: DangerSign[] = [
   { id: 'breathing', label: 'Difficulty breathing', icon: 'Wind' },
 ];
 
+function isUrgentSelection(selected: Set<string>): boolean {
+  return (
+    selected.has('bleeding') ||
+    (selected.has('headache') && selected.has('vision')) ||
+    selected.has('convulsions')
+  );
+}
+
 export default function DangerSignsPage({ navigate, currentView }: Props) {
   const { t } = useLocale();
   const profile = getProfile();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [result, setResult] = useState<string | null>(null);
+  const [resultSource, setResultSource] = useState<'ai' | 'offline' | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
 
   const toggleSign = (id: string) => {
@@ -67,11 +82,13 @@ export default function DangerSignsPage({ navigate, currentView }: Props) {
       return s;
     });
     setResult(null);
+    setResultSource(null);
   };
 
   const handleSubmit = async () => {
     if (selected.size === 0) {
       setResult('clear');
+      setResultSource(null);
       return;
     }
     setLoading(true);
@@ -79,28 +96,45 @@ export default function DangerSignsPage({ navigate, currentView }: Props) {
       const labels = DANGER_SIGNS.filter((s) => selected.has(s.id)).map(
         (s) => s.label
       );
-      const text = await analyzeDangerSigns(
-        labels,
-        profile?.gestationalAgeWeeks ?? 20
-      );
+      const weeks = profile?.gestationalAgeWeeks ?? 20;
+      const urgent = isUrgentSelection(selected);
+      const { text, source } = await analyzeDangerSigns(labels, weeks);
+
+      const now = new Date().toISOString();
+      saveDangerSignReport({
+        id: crypto.randomUUID(),
+        date: now,
+        signs: labels,
+        response: text,
+        urgent,
+        source,
+      });
+      saveAIInsight({
+        type: 'danger',
+        text,
+        source,
+        date: now,
+        meta: { signs: labels, urgent },
+      });
+
       setResult(text);
+      setResultSource(source);
     } catch {
       setResult('error');
+      setResultSource(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const isUrgent =
-    selected.has('bleeding') ||
-    (selected.has('headache') && selected.has('vision'));
+  const isUrgent = isUrgentSelection(selected);
 
   return (
     <MotherLayout
       currentView={currentView}
       navigate={navigate}
       title="Danger Signs"
-      subtitle="Select any symptoms you are experiencing right now"
+      subtitle="Select symptoms — AI assesses urgency and alerts your HEW"
       onBack={() => navigate('motherDashboard')}
       backLabel="Dashboard"
     >
@@ -113,13 +147,14 @@ export default function DangerSignsPage({ navigate, currentView }: Props) {
               return (
                 <button
                   key={sign.id}
+                  type="button"
                   onClick={() => toggleSign(sign.id)}
-                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors
-                    ${
-                      isSelected
-                        ? 'bg-red-100 border-2 border-red-400 text-red-800'
-                        : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300'
-                    }`}
+                  className={cn(
+                    'flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors',
+                    isSelected
+                      ? 'bg-rose-50 border-2 border-rose-300 text-rose-800'
+                      : 'bg-white border border-slate-200 text-slate-700 hover:border-slate-300'
+                  )}
                 >
                   {Icon && <Icon size={16} />}
                   {sign.label}
@@ -128,20 +163,20 @@ export default function DangerSignsPage({ navigate, currentView }: Props) {
             })}
           </div>
 
-          <button
+          <Button
             onClick={handleSubmit}
             disabled={loading}
-            className="bg-emerald-600 text-white rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-emerald-700 active:scale-95 transition-all w-full sm:w-auto sm:min-w-[200px] disabled:opacity-60 flex items-center justify-center gap-2"
+            className="w-full sm:w-auto sm:min-w-[200px]"
           >
             {loading && <Loader2 size={16} className="animate-spin" />}
-            {loading ? 'Analyzing...' : 'Check Symptoms'}
-          </button>
+            {loading ? 'Analyzing with AI...' : 'Check Symptoms with AI'}
+          </Button>
         </div>
 
-        <div className="flex-1 max-w-xl">
+        <div className="flex-1 max-w-xl flex flex-col gap-3">
           {result === 'clear' && (
-            <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5">
-              <p className="text-sm text-emerald-800">
+            <div className={ds.alertSuccess}>
+              <p className={ds.alertSuccessText}>
                 No danger signs selected. Continue monitoring and attend your
                 ANC visits. Contact your HEW if anything changes.
               </p>
@@ -149,33 +184,45 @@ export default function DangerSignsPage({ navigate, currentView }: Props) {
           )}
 
           {result === 'error' && (
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-5">
-              <p className="text-sm text-red-800">{t('aiError')}</p>
+            <div className={ds.alertDanger}>
+              <p className={ds.alertDangerText}>{t('aiError')}</p>
             </div>
           )}
 
           {result && result !== 'clear' && result !== 'error' && (
             <div
-              className={`rounded-2xl p-5 border-2 ${
+              className={cn(
+                'rounded-2xl p-5 border-2',
                 isUrgent
-                  ? 'bg-red-50 border-red-400'
+                  ? 'bg-rose-50 border-rose-400'
                   : 'bg-amber-50 border-amber-300'
-              }`}
+              )}
             >
-              <p className="text-sm text-gray-800 whitespace-pre-line">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                  AI assessment
+                </p>
+                {resultSource && <AISourceBadge source={resultSource} />}
+              </div>
+              <p className="text-sm text-slate-800 whitespace-pre-line leading-relaxed">
                 {result}
               </p>
-              <p className="text-xs text-gray-500 mt-3 border-t pt-2">
+              {resultSource === 'ai' && (
+                <p className="text-xs text-teal-700 mt-3 font-medium">
+                  Report saved — your HEW will see this on their dashboard.
+                </p>
+              )}
+              <p className="text-xs text-slate-500 mt-3 border-t border-slate-200/80 pt-2">
                 {t('dangerDisclaimer')}
               </p>
             </div>
           )}
 
           {!result && (
-            <div className="hidden lg:block bg-white border border-gray-100 rounded-2xl p-5 text-sm text-gray-500">
-              Select symptoms and click Check Symptoms to receive AI-guided
-              guidance. Urgent combinations will be highlighted in red.
-            </div>
+            <Card className="hidden lg:block text-sm text-slate-500 leading-relaxed">
+              Select symptoms and run AI analysis. Urgent cases are flagged for
+              your Health Extension Worker automatically.
+            </Card>
           )}
         </div>
       </div>

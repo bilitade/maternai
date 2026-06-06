@@ -1,6 +1,13 @@
 import type { DemoMother, MotherProfile } from './types';
-import { getANCContacts, getWellnessHistory } from './storage';
+import {
+  getANCContacts,
+  getWellnessHistory,
+  getLatestDangerReport,
+  getAIInsights,
+} from './storage';
 import { ANC_CONTACTS } from '@/data/ancContacts';
+
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
 export function profileToDemoMother(profile: MotherProfile): DemoMother {
   const savedANC = getANCContacts();
@@ -14,7 +21,17 @@ export function profileToDemoMother(profile: MotherProfile): DemoMother {
     .filter((e) => e.score < 40).length;
 
   const flags: DemoMother['flags'] = [];
-  if (recentLowScores >= 2) flags.push('wellness_concern');
+
+  const dangerReport = getLatestDangerReport();
+  if (
+    dangerReport &&
+    dangerReport.signs.length > 0 &&
+    Date.now() - new Date(dangerReport.date).getTime() < SEVEN_DAYS_MS
+  ) {
+    flags.push('danger_sign');
+  }
+
+  if (recentLowScores >= 1) flags.push('wellness_concern');
   if (profile.mealsPerDay < 2) flags.push('nutrition_concern');
 
   const missedANC = ANC_CONTACTS.some((contact) => {
@@ -41,6 +58,13 @@ export function profileToDemoMother(profile: MotherProfile): DemoMother {
     flags,
     ancCompleted,
   };
+}
+
+/** Latest AI messages for HEW detail view */
+export function getMotherAIHistory() {
+  const danger = getLatestDangerReport();
+  const insights = getAIInsights().slice(-5).reverse();
+  return { danger, insights };
 }
 
 const FLAG_PRIORITY: Record<string, number> = {

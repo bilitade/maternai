@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { AppView, DemoMother } from '@/lib/types';
 import { LocaleProvider } from '@/components/providers/LocaleProvider';
+import { ds } from '@/lib/design-system';
 
 import SplashPage from './views/SplashPage';
 import RoleSelectPage from './views/RoleSelectPage';
@@ -68,7 +69,7 @@ function ApplicationViews() {
 export default function ApplicationRoot() {
   return (
     <LocaleProvider>
-      <div className="min-h-screen w-full bg-gray-50 text-gray-900 flex flex-col">
+      <div className={ds.page}>
         <ApplicationViews />
       </div>
     </LocaleProvider>

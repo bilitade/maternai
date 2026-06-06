@@ -4,6 +4,8 @@ import { Heart, Stethoscope } from 'lucide-react';
 import WebHeader from '@/components/layout/WebHeader';
 import PageContainer from '@/components/layout/PageContainer';
 import { useLocale } from '@/components/providers/LocaleProvider';
+import { cn } from '@/lib/cn';
+import { ds } from '@/lib/design-system';
 
 interface Props {
   onSelect: (role: 'mother' | 'hew') => void;
@@ -18,43 +20,55 @@ export default function RoleSelectPage({ onSelect }: Props) {
       label: t('roleMother'),
       sub: t('roleMotherSub'),
       Icon: Heart,
-      border: 'hover:border-pink-400',
-      iconColor: 'text-pink-600 bg-pink-50',
+      accent: 'group-hover:border-teal-300 group-hover:shadow-teal-100/50',
+      iconStyle: 'text-rose-500 bg-rose-50 ring-1 ring-rose-100',
     },
     {
       role: 'hew' as const,
       label: t('roleHew'),
       sub: t('roleHewSub'),
       Icon: Stethoscope,
-      border: 'hover:border-emerald-500',
-      iconColor: 'text-emerald-600 bg-emerald-50',
+      accent: 'group-hover:border-teal-300 group-hover:shadow-teal-100/50',
+      iconStyle: 'text-teal-600 bg-teal-50 ring-1 ring-teal-100',
     },
   ];
 
   return (
-    <div className="flex flex-col min-h-screen w-full">
+    <div className={ds.page}>
       <WebHeader
         title={t('welcomeTitle')}
         subtitle={t('welcomeSubtitle')}
         showBrand
       />
-      <PageContainer narrow className="py-8 lg:py-12 flex-1">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-          {roles.map(({ role, label, sub, Icon, border, iconColor }) => (
+      <PageContainer narrow className="py-10 lg:py-14 flex-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6">
+          {roles.map(({ role, label, sub, Icon, accent, iconStyle }) => (
             <button
               key={role}
+              type="button"
               onClick={() => onSelect(role)}
-              className={`bg-white border-2 border-gray-200 ${border} rounded-2xl p-6 lg:p-8 text-left cursor-pointer transition-all shadow-sm hover:shadow-md active:scale-[0.99]`}
+              className={cn(
+                'group text-left cursor-pointer transition-all duration-200',
+                ds.card,
+                ds.cardPadding,
+                'hover:shadow-lg hover:border-teal-200/80 hover:-translate-y-0.5',
+                accent
+              )}
             >
               <div
-                className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${iconColor}`}
+                className={cn(
+                  'w-12 h-12 rounded-2xl flex items-center justify-center mb-4',
+                  iconStyle
+                )}
               >
-                <Icon size={28} />
+                <Icon size={26} strokeWidth={1.75} />
               </div>
-              <p className="font-semibold text-gray-900 text-lg lg:text-xl">
+              <p className="font-semibold text-slate-900 text-lg lg:text-xl">
                 {label}
               </p>
-              <p className="text-sm lg:text-base text-gray-500 mt-2">{sub}</p>
+              <p className="text-sm lg:text-base text-slate-500 mt-2 leading-relaxed">
+                {sub}
+              </p>
             </button>
           ))}
         </div>

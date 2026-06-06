@@ -3,9 +3,14 @@
 import { useState } from 'react';
 import type { AppView, DemoMother, MotherFlag } from '@/lib/types';
 import { ANC_CONTACTS } from '@/data/ancContacts';
-import { saveHEWVisit } from '@/lib/storage';
+import { getProfile, saveHEWVisit } from '@/lib/storage';
+import { getMotherAIHistory } from '@/lib/hewHelpers';
 import RiskBadge from '@/components/ui/RiskBadge';
+import AISourceBadge from '@/components/ui/AISourceBadge';
 import HEWLayout from '@/components/layout/HEWLayout';
+import Card, { Button } from '@/components/ui/Card';
+import { cn } from '@/lib/cn';
+import { ds } from '@/lib/design-system';
 
 interface Props {
   mother: DemoMother | null;
@@ -13,17 +18,17 @@ interface Props {
 }
 
 const FLAG_STYLES: Record<MotherFlag, string> = {
-  danger_sign: 'bg-red-50 border-red-200 text-red-800',
+  danger_sign: 'bg-rose-50 border-rose-200 text-rose-800',
   missed_anc: 'bg-amber-50 border-amber-200 text-amber-800',
   nutrition_concern: 'bg-orange-50 border-orange-200 text-orange-800',
-  wellness_concern: 'bg-blue-50 border-blue-200 text-blue-800',
+  wellness_concern: 'bg-sky-50 border-sky-200 text-sky-800',
 };
 
 const FLAG_LABELS: Record<MotherFlag, string> = {
-  danger_sign: '🔴 Danger sign reported — act today',
-  missed_anc: '🟠 Missed ANC contact — schedule home visit',
-  nutrition_concern: '🟡 Nutrition concern — send dietary guidance',
-  wellness_concern: '🔵 Wellness concern — weekly follow-up call',
+  danger_sign: 'Danger sign reported — act today',
+  missed_anc: 'Missed ANC contact — schedule home visit',
+  nutrition_concern: 'Nutrition concern — send dietary guidance',
+  wellness_concern: 'Wellness concern — weekly follow-up call',
 };
 
 export default function HEWMotherDetailPage({ mother, navigate }: Props) {
@@ -41,8 +46,9 @@ export default function HEWMotherDetailPage({ mother, navigate }: Props) {
       >
         <div className="flex items-center justify-center py-20">
           <button
+            type="button"
             onClick={() => navigate('hewDashboard')}
-            className="text-emerald-600 text-sm font-medium hover:underline"
+            className={cn('text-sm font-medium hover:underline', ds.brandText)}
           >
             Back to dashboard
           </button>
@@ -59,6 +65,12 @@ export default function HEWMotherDetailPage({ mother, navigate }: Props) {
     setVisitLogged(true);
   };
 
+  const profile = getProfile();
+  const isLiveMother = profile?.id === mother.id;
+  const { danger, insights } = isLiveMother
+    ? getMotherAIHistory()
+    : { danger: null, insights: [] };
+
   return (
     <HEWLayout
       navigate={navigate}
@@ -68,8 +80,9 @@ export default function HEWMotherDetailPage({ mother, navigate }: Props) {
       backLabel="Dashboard"
       headerActions={
         <button
+          type="button"
           onClick={() => navigate('roleSelect')}
-          className="text-sm text-emerald-200 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-emerald-600"
+          className={ds.headerAction}
         >
           Switch role
         </button>
@@ -79,8 +92,8 @@ export default function HEWMotherDetailPage({ mother, navigate }: Props) {
         <div className="lg:col-span-2 flex flex-col gap-4">
           <RiskBadge level={mother.riskLevel} factors={mother.riskFactors} />
 
-          <div className="bg-white border border-gray-100 rounded-2xl p-5 lg:p-6 shadow-sm">
-            <p className="text-sm font-medium text-gray-700 mb-4">
+          <Card>
+            <p className="text-sm font-medium text-slate-700 mb-4">
               ANC Timeline
             </p>
             <div className="flex justify-between gap-2 max-w-lg">
@@ -95,34 +108,37 @@ export default function HEWMotherDetailPage({ mother, navigate }: Props) {
                     className="flex flex-col items-center gap-1"
                   >
                     <div
-                      className={`w-8 h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center text-xs font-medium
-                        ${
-                          completed
-                            ? 'bg-emerald-500 text-white'
-                            : missed
-                              ? 'bg-red-500 text-white'
-                              : 'bg-gray-200 text-gray-500'
-                        }`}
+                      className={cn(
+                        'w-8 h-8 lg:w-9 lg:h-9 rounded-full flex items-center justify-center text-xs font-medium',
+                        completed
+                          ? 'bg-teal-500 text-white'
+                          : missed
+                            ? 'bg-rose-500 text-white'
+                            : 'bg-slate-200 text-slate-500'
+                      )}
                     >
                       {contact.id}
                     </div>
-                    <span className="text-[10px] text-gray-400">
+                    <span className="text-[10px] text-slate-400">
                       W{contact.recommendedWeek}
                     </span>
                   </div>
                 );
               })}
             </div>
-          </div>
+          </Card>
 
           {mother.flags.length > 0 && (
             <div className="flex flex-col gap-2">
-              <p className="text-sm font-medium text-gray-700">Active flags</p>
+              <p className={ds.sectionLabel}>Active flags</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {mother.flags.map((flag) => (
                   <div
                     key={flag}
-                    className={`border rounded-2xl p-3 text-sm ${FLAG_STYLES[flag]}`}
+                    className={cn(
+                      'border rounded-2xl p-3 text-sm leading-snug',
+                      FLAG_STYLES[flag]
+                    )}
                   >
                     {FLAG_LABELS[flag]}
                   </div>
@@ -130,37 +146,70 @@ export default function HEWMotherDetailPage({ mother, navigate }: Props) {
               </div>
             </div>
           )}
+
+          {isLiveMother && danger && danger.signs.length > 0 && (
+            <Card className="border-rose-200 bg-rose-50/50">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <p className="text-sm font-semibold text-rose-900">
+                  AI danger sign report
+                </p>
+                <AISourceBadge source={danger.source} />
+              </div>
+              <p className="text-xs text-rose-700 mb-2">
+                Reported: {danger.signs.join(', ')} ·{' '}
+                {new Date(danger.date).toLocaleString()}
+              </p>
+              <p className="text-sm text-slate-800 leading-relaxed">
+                {danger.response}
+              </p>
+            </Card>
+          )}
+
+          {isLiveMother && insights.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <p className={ds.sectionLabel}>Recent AI activity</p>
+              {insights.map((insight, i) => (
+                <Card key={i} padding className="!p-4">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <p className="text-xs font-medium text-slate-500 capitalize">
+                      {insight.type}
+                    </p>
+                    <AISourceBadge source={insight.source} />
+                  </div>
+                  <p className="text-sm text-slate-700 leading-relaxed">
+                    {insight.text}
+                  </p>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-3">
-          <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
-            Actions
-          </p>
-          <button
-            onClick={handleLogVisit}
-            disabled={visitLogged}
-            className="bg-emerald-600 text-white rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-emerald-700 active:scale-95 transition-all w-full disabled:opacity-60"
-          >
+          <p className={ds.sectionLabel}>Actions</p>
+          <Button onClick={handleLogVisit} disabled={visitLogged} fullWidth>
             {visitLogged ? 'Visit logged ✓' : 'Log Home Visit'}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="secondary"
             onClick={() => setReminderSent(true)}
             disabled={reminderSent}
-            className="border border-gray-200 text-gray-700 rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-gray-50 transition-colors w-full disabled:opacity-60 bg-white"
+            fullWidth
           >
             {reminderSent
               ? `Reminder sent to ${mother.name} ✓`
               : 'Send Reminder'}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="danger"
             onClick={() => setEscalated(true)}
             disabled={escalated}
-            className="bg-red-600 text-white rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-red-700 active:scale-95 transition-all w-full disabled:opacity-60"
+            fullWidth
           >
             {escalated
               ? 'Escalated — health center notified ✓'
               : 'Escalate to Health Center'}
-          </button>
+          </Button>
         </div>
       </div>
     </HEWLayout>

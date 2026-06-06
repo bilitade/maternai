@@ -1,5 +1,4 @@
-import type { AppView } from '@/lib/types';
-import type { MessageKey } from '@/lib/i18n';
+import type { LucideIcon } from 'lucide-react';
 import {
   CalendarCheck,
   AlertTriangle,
@@ -7,50 +6,52 @@ import {
   Heart,
   Baby,
   LayoutDashboard,
-  LucideIcon,
 } from 'lucide-react';
+import type { AppView } from '@/lib/types';
+import type { MessageKey } from '@/lib/i18n';
+import { featureIconColors } from '@/lib/design-system';
 
 export const MOTHER_NAV_ITEMS: {
   labelKey: MessageKey;
   icon: LucideIcon;
   view: AppView;
-  color: string;
+  iconStyle: string;
 }[] = [
   {
     labelKey: 'navDashboard',
     icon: LayoutDashboard,
     view: 'motherDashboard',
-    color: 'text-emerald-600 bg-emerald-50',
+    iconStyle: featureIconColors.default,
   },
   {
     labelKey: 'navAnc',
     icon: CalendarCheck,
     view: 'ancTracker',
-    color: 'text-emerald-600 bg-emerald-50',
+    iconStyle: featureIconColors.anc,
   },
   {
     labelKey: 'navDanger',
     icon: AlertTriangle,
     view: 'dangerSigns',
-    color: 'text-red-600 bg-red-50',
+    iconStyle: featureIconColors.danger,
   },
   {
     labelKey: 'navNutrition',
     icon: Apple,
     view: 'nutrition',
-    color: 'text-orange-600 bg-orange-50',
+    iconStyle: featureIconColors.nutrition,
   },
   {
     labelKey: 'navWellness',
     icon: Heart,
     view: 'wellnessCheck',
-    color: 'text-pink-600 bg-pink-50',
+    iconStyle: featureIconColors.wellness,
   },
   {
     labelKey: 'navDelivery',
     icon: Baby,
     view: 'deliveryPrep',
-    color: 'text-blue-600 bg-blue-50',
+    iconStyle: featureIconColors.delivery,
   },
 ];
 
