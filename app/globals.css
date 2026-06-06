@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  --background: #f9fafb;
+  --foreground: #111827;
+  --input-bg: #ffffff;
+  --input-text: #111827;
+  --input-border: #e5e7eb;
+  --placeholder: #9ca3af;
 }
 
 @theme inline {
@@ -12,15 +17,46 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: light;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Form controls — explicit colors so OS dark mode cannot wash out text */
+input,
+select,
+textarea {
+  color: var(--input-text);
+  background-color: var(--input-bg);
+  border-color: var(--input-border);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
+}
+
+input[type='date'],
+input[type='number'],
+input[type='tel'],
+input[type='text'],
+input[type='email'],
+select {
+  -webkit-text-fill-color: var(--input-text);
+}
+
+select option {
+  color: #111827;
+  background-color: #ffffff;
+}
+
+/* Recharts / SVG text inherits correctly */
+svg text {
+  fill: currentColor;
 }

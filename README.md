@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MaternaAI Ethiopia
 
-## Getting Started
+AI-powered maternal continuity-of-care platform for Ethiopian mothers and Health Extension Workers (HEWs).
 
-First, run the development server:
+## Quick start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+cp .env.example .env.local   # add your OPENROUTER_API_KEY
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Next.js 16 · TypeScript · Tailwind CSS v4 · OpenRouter · Recharts · localStorage
 
-## Learn More
+## Documentation
 
-To learn more about Next.js, take a look at the following resources:
+| Doc | Description |
+|-----|-------------|
+| [docs/README.md](docs/README.md) | Feature status tracker |
+| [docs/prompt.md](docs/prompt.md) | Implementation reference |
+| [docs/workflow.md](docs/workflow.md) | Mermaid workflow diagrams |
+| [docs/proposal.md](docs/proposal.md) | Hackathon pitch |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `OPENROUTER_API_KEY` | Optional* | OpenRouter API key for live AI |
+| `NEXT_PUBLIC_APP_URL` | Yes | App URL for OpenRouter referer header |
 
-## Deploy on Vercel
+\*Without a valid key, the app uses protocol-based fallback responses so demos still work.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deploy (Vercel)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+pnpm build
+pnpm dlx vercel
+```
+
+Set `OPENROUTER_API_KEY` and `NEXT_PUBLIC_APP_URL` in the Vercel project settings, then redeploy.
+
+## Demo checklist
+
+1. Splash → role select (try EN / አማ toggle)
+2. Mother registration → high-risk badge
+3. ANC tracker → missed contact escalation
+4. Danger signs → AI / fallback preeclampsia warning
+5. Nutrition → Get My Tip
+6. Wellness check → low score + helpline
+7. HEW dashboard → priority list
+8. HEW detail → Escalate to health center
