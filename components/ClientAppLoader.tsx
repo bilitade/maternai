@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { ds } from '@/lib/design-system';
+import AuthProvider from '@/components/providers/AuthProvider';
 
 const ApplicationRoot = dynamic(
   () => import('@/components/ApplicationRoot'),
@@ -17,5 +18,9 @@ const ApplicationRoot = dynamic(
 );
 
 export default function ClientAppLoader() {
-  return <ApplicationRoot />;
+  return (
+    <AuthProvider>
+      <ApplicationRoot />
+    </AuthProvider>
+  );
 }

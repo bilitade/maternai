@@ -28,6 +28,7 @@ import Card from '@/components/ui/Card';
 interface Props {
   navigate: (view: AppView) => void;
   currentView: AppView;
+  onLogout?: () => void;
 }
 
 const INSIGHT_LABELS: Record<AIInsightType, string> = {
@@ -42,7 +43,7 @@ const INSIGHT_VIEWS: Record<AIInsightType, AppView> = {
   wellness: 'wellnessCheck',
 };
 
-export default function MotherDashboard({ navigate, currentView }: Props) {
+export default function MotherDashboard({ navigate, currentView, onLogout }: Props) {
   const { t, tf } = useLocale();
   const profile = getProfile();
   const history = getWellnessHistory().slice(-6);
@@ -59,6 +60,13 @@ export default function MotherDashboard({ navigate, currentView }: Props) {
       navigate={navigate}
       title={profile?.name ?? t('roleMother')}
       subtitle={subtitle}
+      headerActions={
+        onLogout ? (
+          <button type="button" onClick={onLogout} className={ds.headerAction}>
+            Sign out
+          </button>
+        ) : undefined
+      }
     >
       <div className="flex flex-col gap-6">
         {profile && (

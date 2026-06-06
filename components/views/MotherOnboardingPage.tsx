@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { FamilySupport, MotherProfile } from '@/lib/types';
 import { calcGestationalWeeks, calculateRisk } from '@/lib/riskLogic';
-import { saveProfile } from '@/lib/storage';
+import { saveProfileToServer } from '@/lib/sync';
 import WebHeader from '@/components/layout/WebHeader';
 import PageContainer from '@/components/layout/PageContainer';
 import { useLocale } from '@/components/providers/LocaleProvider';
@@ -48,7 +48,7 @@ export default function MotherOnboardingPage({ onComplete }: Props) {
     ? calcGestationalWeeks(formData.lmp)
     : null;
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     const gestationalAgeWeeks = calcGestationalWeeks(formData.lmp!);
     const partial = {
       ...formData,
@@ -64,7 +64,7 @@ export default function MotherOnboardingPage({ onComplete }: Props) {
       registeredAt: new Date().toISOString(),
       registeredBy: 'self',
     } as MotherProfile;
-    saveProfile(profile);
+    await saveProfileToServer(profile);
     onComplete();
   };
 

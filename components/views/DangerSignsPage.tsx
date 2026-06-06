@@ -13,7 +13,8 @@ import {
   Loader2,
 } from 'lucide-react';
 import type { AppView, DangerSign } from '@/lib/types';
-import { getProfile, saveAIInsight, saveDangerSignReport } from '@/lib/storage';
+import { getProfile } from '@/lib/storage';
+import { saveAIInsightSync, saveDangerSignReportSync } from '@/lib/sync';
 import { analyzeDangerSigns } from '@/lib/ai';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import MotherLayout from '@/components/layout/MotherLayout';
@@ -101,7 +102,7 @@ export default function DangerSignsPage({ navigate, currentView }: Props) {
       const { text, source } = await analyzeDangerSigns(labels, weeks);
 
       const now = new Date().toISOString();
-      saveDangerSignReport({
+      saveDangerSignReportSync({
         id: crypto.randomUUID(),
         date: now,
         signs: labels,
@@ -109,7 +110,7 @@ export default function DangerSignsPage({ navigate, currentView }: Props) {
         urgent,
         source,
       });
-      saveAIInsight({
+      saveAIInsightSync({
         type: 'danger',
         text,
         source,

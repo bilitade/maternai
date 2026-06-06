@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { AppView } from '@/lib/types';
-import { getWellnessHistory, saveWellnessEntry, saveAIInsight } from '@/lib/storage';
+import { getWellnessHistory, saveWellnessEntry } from '@/lib/storage';
+import { saveAIInsightSync, saveWellnessEntrySync } from '@/lib/sync';
 import { getWellnessMessage } from '@/lib/ai';
 import { useLocale } from '@/components/providers/LocaleProvider';
 import MotherLayout from '@/components/layout/MotherLayout';
@@ -56,7 +57,7 @@ export default function WellnessCheckPage({
       score: computedScore,
       answers: answers as number[],
     };
-    saveWellnessEntry(entry);
+    saveWellnessEntrySync(entry);
 
     const history = [...getWellnessHistory(), entry];
     let consecutiveLow = 0;
@@ -73,7 +74,7 @@ export default function WellnessCheckPage({
       );
       setMessage(text);
       setMessageSource(source);
-      saveAIInsight({
+      saveAIInsightSync({
         type: 'wellness',
         text,
         source,

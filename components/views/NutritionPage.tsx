@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { AppView, Food } from '@/lib/types';
 import { FOODS } from '@/data/ethiopianFoods';
-import { getProfile, saveAIInsight } from '@/lib/storage';
+import { getProfile } from '@/lib/storage';
+import { saveAIInsightSync } from '@/lib/sync';
 import { getTrimester } from '@/lib/riskLogic';
 import { getNutritionTip } from '@/lib/ai';
 import { useLocale } from '@/components/providers/LocaleProvider';
@@ -54,7 +55,7 @@ export default function NutritionPage({ navigate, currentView }: Props) {
       );
       setTip(text);
       setTipSource(source);
-      saveAIInsight({
+      saveAIInsightSync({
         type: 'nutrition',
         text,
         source,

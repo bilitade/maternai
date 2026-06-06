@@ -12,6 +12,8 @@ export type MotherFlag =
 
 export type AIAction = 'dangerSigns' | 'nutrition' | 'wellness';
 
+export type UserRole = 'mother' | 'hew';
+
 export interface MotherProfile {
   id: string;
   name: string;
@@ -130,6 +132,8 @@ export interface DangerSignReport {
 
 export type AppView =
   | 'splash'
+  | 'login'
+  | 'signup'
   | 'roleSelect'
   | 'motherOnboarding'
   | 'motherDashboard'
